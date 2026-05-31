@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 import { 
   ArrowRight, 
   ShieldCheck, 
@@ -8,11 +9,18 @@ import {
   BarChart3,
   GraduationCap,
   Sun,
-  Moon
+  Moon,
+  Star
 } from 'lucide-react';
 
 const Home = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [stats, setStats] = useState({
+    totalRegistered: 0,
+    totalResolved: 0,
+    averageResolutionTime: 24
+  });
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     if (theme === 'light') {
@@ -23,9 +31,77 @@ const Home = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    const fetchPublicData = async () => {
+      try {
+        const statsRes = await api.get('/public/stats');
+        setStats(statsRes.data);
+        
+        const reviewsRes = await api.get('/public/reviews');
+        setReviews(reviewsRes.data);
+      } catch (err) {
+        console.error('Error loading public homepage stats/reviews:', err.message);
+      }
+    };
+    fetchPublicData();
+  }, []);
+
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const getBaseList = () => {
+    if (reviews.length === 0) return [];
+    let list = [...reviews];
+    while (list.length < 6) {
+      list = [...list, ...reviews];
+    }
+    return list;
+  };
+  const baseList = getBaseList();
+  const extendedReviews = [...baseList, ...baseList];
+
+  useEffect(() => {
+    if (reviews.length === 0 || isHovered) return;
+    
+    const interval = setInterval(() => {
+      setIsTransitionEnabled(true);
+      setActiveIdx(prev => prev + 1);
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [reviews, isHovered]);
+
+  useEffect(() => {
+    if (reviews.length === 0) return;
+
+    if (activeIdx === baseList.length) {
+      const timeout = setTimeout(() => {
+        setIsTransitionEnabled(false);
+        setActiveIdx(0);
+      }, 600);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [activeIdx, baseList.length, reviews.length]);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
+
+  const categories = [
+    { name: 'Attendance Issues', emoji: '📝' },
+    { name: 'Examination Issues', emoji: '📄' },
+    { name: 'Marks/Re-evaluation', emoji: '📊' },
+    { name: 'Fee Related', emoji: '💰' },
+    { name: 'Scholarship', emoji: '🎓' },
+    { name: 'Hostel Complaints', emoji: '🏠' },
+    { name: 'Library Complaints', emoji: '📚' },
+    { name: 'Infrastructure', emoji: '🚧' },
+    { name: 'Faculty Related', emoji: '👩‍🏫' },
+    { name: 'Technical/Lab', emoji: '💻' },
+    { name: 'Other', emoji: '📌' }
+  ];
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
@@ -112,6 +188,49 @@ const Home = () => {
               Department Portal Login
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '40px 0 20px 0', textAlign: 'center' }}>
+        <h2 style={{ 
+          fontFamily: 'Outfit', 
+          fontSize: '2rem', 
+          fontWeight: '700', 
+          marginBottom: '10px' 
+        }}>
+          Grievance Categories
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '32px' }}>
+          11 categories to ensure complaints reach the correct department
+        </p>
+        
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '14px', 
+          justifyContent: 'center',
+          maxWidth: '900px',
+          margin: '0 auto'
+        }}>
+          {categories.map((cat) => (
+            <div 
+              key={cat.name} 
+              className="glass-panel" 
+              style={{ 
+                padding: '10px 20px', 
+                borderRadius: '9999px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'var(--transition)'
+              }}
+            >
+              <span>{cat.emoji}</span>
+              <span>{cat.name}</span>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -206,23 +325,140 @@ const Home = () => {
         background: 'var(--bg-secondary)', 
         border: '1px solid var(--border)',
         textAlign: 'center',
-        margin: '40px 0 80px 0'
+        margin: '40px 0 60px 0'
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '30px' }}>
           <div>
-            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--primary)', fontWeight: 'bold' }}>24h</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Average Initial Response</p>
+            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--primary)', fontWeight: 'bold' }}>
+              {stats.totalRegistered}
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Total Issues Registered</p>
           </div>
           <div>
-            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--accent-emerald)', fontWeight: 'bold' }}>98.4%</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Grievance Resolution Rate</p>
+            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--accent-emerald)', fontWeight: 'bold' }}>
+              {stats.totalResolved}
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Issues Resolved</p>
           </div>
           <div>
-            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--accent-amber)', fontWeight: 'bold' }}>100%</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Accountability & Security</p>
+            <h3 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', color: 'var(--accent-amber)', fontWeight: 'bold' }}>
+              {stats.averageResolutionTime}h
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Average Resolution Time</p>
           </div>
         </div>
       </section>
+
+      {/* Student Reviews Scrolling Loop */}
+      {reviews.length > 0 && (
+        <section style={{ 
+          padding: '60px 0', 
+          textAlign: 'center',
+          borderTop: '1px solid var(--border)',
+          marginTop: '20px'
+        }}>
+          <h2 style={{ 
+            fontFamily: 'Outfit', 
+            fontSize: '2rem', 
+            fontWeight: '700', 
+            marginBottom: '10px'
+          }}>
+            Student Voices
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '40px' }}>
+            Real feedback from solved grievance cases
+          </p>
+
+          <div 
+            className="reviews-slider-container"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onTouchStart={() => setIsHovered(true)}
+            onTouchEnd={() => setIsHovered(false)}
+          >
+            <div 
+              className="reviews-slider-track"
+              style={{
+                transform: `translateX(calc(-1 * ${activeIdx} * (var(--card-width) + 24px)))`,
+                transition: isTransitionEnabled ? 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+              }}
+            >
+              {extendedReviews.map((rev, idx) => (
+                <div 
+                  key={`${rev._id || idx}-${idx}`}
+                  className="glass-panel reviews-slider-card"
+                  style={{
+                    padding: '36px',
+                    borderRadius: 'var(--radius-lg)',
+                    position: 'relative',
+                    boxShadow: 'var(--glass-shadow)',
+                    border: '1px solid var(--border)',
+                    textAlign: 'center',
+                    minHeight: '220px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  {/* Giant Quotation Mark Decors */}
+                  <span style={{ 
+                    position: 'absolute', 
+                    top: '10px', 
+                    left: '20px', 
+                    fontSize: '4rem', 
+                    fontFamily: 'Outfit', 
+                    color: 'rgba(99, 102, 241, 0.08)', 
+                    lineHeight: 1, 
+                    userSelect: 'none' 
+                  }}>
+                    “
+                  </span>
+
+                  {/* Star Rating display */}
+                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginBottom: '12px' }}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star 
+                        key={star} 
+                        size={16} 
+                        fill={rev.rating >= star ? 'var(--accent-amber)' : 'none'} 
+                        stroke={rev.rating >= star ? 'var(--accent-amber)' : 'var(--text-muted)'} 
+                      />
+                    ))}
+                  </div>
+
+                  {/* Comment text */}
+                  <p style={{ 
+                    fontSize: '0.95rem', 
+                    lineHeight: '1.5', 
+                    color: 'var(--text-primary)', 
+                    fontStyle: 'italic', 
+                    marginBottom: '16px',
+                    padding: '0 10px',
+                    flex: 1
+                  }}>
+                    "{rev.comment || 'No comments provided'}"
+                  </p>
+
+                  {/* Credit Author */}
+                  <h4 style={{ 
+                    fontFamily: 'Outfit', 
+                    fontSize: '0.9rem', 
+                    color: 'var(--primary)', 
+                    fontWeight: '600',
+                    margin: 0
+                  }}>
+                    — {rev.studentName}
+                  </h4>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    Resolved Case Review
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer style={{ 
