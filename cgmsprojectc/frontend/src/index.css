@@ -337,3 +337,43 @@ button, input, select, textarea {
   background-clip: text;
   color: transparent;
 }
+
+/* Responsive Reviews Slider & Carousel */
+.reviews-slider-container {
+  overflow: hidden;
+  width: 100%;
+  padding: 10px 0;
+  margin: 0 auto;
+  --container-width: calc(100vw - 48px);
+  --card-width: var(--container-width);
+}
+
+@media (min-width: 1200px) {
+  .reviews-slider-container {
+    --container-width: 1152px;
+  }
+}
+
+@media (min-width: 640px) {
+  .reviews-slider-container {
+    --card-width: calc((var(--container-width) - 24px) / 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .reviews-slider-container {
+    --card-width: calc((var(--container-width) - 48px) / 3);
+  }
+}
+
+.reviews-slider-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+}
+
+.reviews-slider-card {
+  width: var(--card-width);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
