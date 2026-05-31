@@ -35,28 +35,14 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSessionExpiredMsg(false);
     setLoading(true);
-
     try {
-      const loggedUser = await login(email, password);
+      const loggedUser = await login(email, password, roleTab);
       
-      // Enforce portal boundaries based on current portal tab
-      if (roleTab === 'Student' && loggedUser.role !== 'Student') {
-        await logout();
-        setError('Access denied. Please use the Faculty / Admin login portal.');
-        return;
-      }
-      
-      if (roleTab === 'Staff' && loggedUser.role === 'Student') {
-        await logout();
-        setError('Access denied. Please use the Student login portal.');
-        return;
-      }
-
       if (loggedUser.role === 'Student') {
         navigate('/student/dashboard');
       } else if (loggedUser.role === 'Faculty') {
