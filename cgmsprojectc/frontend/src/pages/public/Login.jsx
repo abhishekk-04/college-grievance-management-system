@@ -4,7 +4,7 @@ import useAuth from '../../hooks/useAuth';
 import { GraduationCap, LogIn, AlertCircle, Bot, ArrowLeft } from 'lucide-react';
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
