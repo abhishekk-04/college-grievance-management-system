@@ -20,10 +20,19 @@ export const AuthProvider = ({ children }) => {
     restoreSession();
   }, []);
 
-  const login = async (email, password) => {
+    const login = async (email, password, portalTab) => {
     try {
       const res = await api.post('/auth/login', { email, password });
       const userData = res.data;
+      
+      // Enforce portal boundaries based on current portal tab
+      if (portalTab === 'Student' && userData.role !== 'Student') {
+        throw new Error('Access denied. Please use the Faculty / Admin login portal.');
+      }
+      
+      if (portalTab === 'Staff' && userData.role === 'Student') {
+        throw new Error('Access denied. Please use the Student login portal.');
+      }
       
       localStorage.setItem('accessToken', userData.accessToken);
       localStorage.setItem('refreshToken', userData.refreshToken);
