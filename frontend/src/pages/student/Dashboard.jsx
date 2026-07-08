@@ -105,7 +105,7 @@ const StudentDashboard = () => {
 
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '30px' }}>
+      <div className="dashboard-content-layout">
         
         {/* Recent Tickets Feed */}
         <div className="glass-panel" style={{ padding: '30px', borderRadius: 'var(--radius-lg)' }}>

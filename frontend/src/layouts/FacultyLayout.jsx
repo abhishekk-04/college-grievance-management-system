@@ -9,7 +9,9 @@ import {
   UserCheck,
   ArrowLeft,
   Sun,
-  Moon
+  Moon,
+  Menu,
+  X
 } from 'lucide-react';
 
 const FacultyLayout = () => {
@@ -18,6 +20,7 @@ const FacultyLayout = () => {
   const navigate = useNavigate();
 
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (theme === 'light') {
@@ -43,39 +46,42 @@ const FacultyLayout = () => {
   ];
 
   return (
-    <div className="layout-container" style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="layout-container">
       
+      {/* Sidebar Overlay for Mobile */}
+      <div className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`} onClick={() => setIsSidebarOpen(false)} />
+
       {/* Sidebar */}
-      <aside className="sidebar glass-panel" style={{ 
-        width: '260px', 
-        padding: '24px 16px', 
-        margin: '16px', 
-        borderRadius: 'var(--radius-lg)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: '16px',
-        height: 'calc(100vh - 32px)'
-      }}>
+      <aside className={`sidebar glass-panel ${isSidebarOpen ? 'open' : ''}`}>
         <div>
           {/* Logo / Branding */}
           <div className="branding" style={{ 
             display: 'flex', 
             alignItems: 'center', 
+            justifyContent: 'space-between',
             gap: '12px', 
             marginBottom: '40px',
             paddingLeft: '8px'
           }}>
-            <ShieldAlert size={32} style={{ color: 'var(--accent-purple)' }} />
-            <div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 'bold' }}>CGS Portal</h3>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Faculty Division</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ShieldAlert size={32} style={{ color: 'var(--accent-purple)' }} />
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 'bold' }}>CGS Portal</h3>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Faculty Division</p>
+              </div>
             </div>
+            <button 
+              onClick={() => setIsSidebarOpen(false)}
+              className="menu-toggle-btn"
+              style={{ padding: '6px' }}
+              title="Close Menu"
+            >
+              <X size={16} />
+            </button>
           </div>
 
           {/* Navigation Links */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <nav className="sidebar-nav">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -83,6 +89,7 @@ const FacultyLayout = () => {
                 <Link
                   key={item.name}
                   to={item.path}
+                  onClick={() => setIsSidebarOpen(false)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -106,13 +113,7 @@ const FacultyLayout = () => {
         </div>
 
         {/* Footer User Widget */}
-        <div className="user-widget" style={{ 
-          borderTop: '1px solid var(--border)', 
-          paddingTop: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px'
-        }}>
+        <div className="user-widget">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '40px',
@@ -155,7 +156,7 @@ const FacultyLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="main-content" style={{ flex: 1, padding: '32px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <main className="main-content">
         
         {/* Top Navbar with Back & Theme options */}
         <div className="top-nav-bar" style={{
@@ -165,21 +166,30 @@ const FacultyLayout = () => {
           paddingBottom: '16px',
           borderBottom: '1px solid var(--border)'
         }}>
-          <button 
-            onClick={() => navigate(-1)} 
-            className="btn-secondary" 
-            style={{ 
-              padding: '6px 14px', 
-              fontSize: '0.8rem', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px',
-              borderRadius: 'var(--radius-sm)'
-            }}
-          >
-            <ArrowLeft size={16} />
-            Back
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="menu-toggle-btn"
+              title="Open Navigation Menu"
+            >
+              <Menu size={18} />
+            </button>
+            <button 
+              onClick={() => navigate(-1)} 
+              className="btn-secondary" 
+              style={{ 
+                padding: '6px 14px', 
+                fontSize: '0.8rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                borderRadius: 'var(--radius-sm)'
+              }}
+            >
+              <ArrowLeft size={16} />
+              Back
+            </button>
+          </div>
           
           <button 
             onClick={toggleTheme} 

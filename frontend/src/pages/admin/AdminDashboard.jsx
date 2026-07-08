@@ -162,7 +162,7 @@ const AdminDashboard = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
         
         {/* Grid 1: Department Bar Chart & Monthly Trends */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="admin-dashboard-half-col">
           
           {/* Department Bar Chart */}
           <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Grid 2: Category Breakdown Pie Chart */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '24px', marginBottom: '40px' }}>
+        <div className="admin-dashboard-two-col">
           
           {/* Category Breakdown (Pie) */}
           <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>

@@ -72,7 +72,7 @@ const AssignedGrievances = () => {
 
       {/* Filter toolbar */}
       <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)', marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '12px' }}>
+        <div className="filter-toolbar-grid-4">
           
           {/* Search bar */}
           <div style={{ position: 'relative' }}>

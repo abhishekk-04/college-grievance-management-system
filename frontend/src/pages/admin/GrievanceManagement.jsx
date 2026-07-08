@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
-import { Search, Eye, AlertCircle, Calendar, Trash2, ShieldCheck, UserCheck, X } from 'lucide-react';
+import { Search, Eye, AlertCircle, Calendar, Trash2, ShieldCheck, UserCheck, X, FileText } from 'lucide-react';
 
 const GrievanceManagement = () => {
   const [grievances, setGrievances] = useState([]);
@@ -27,6 +27,15 @@ const GrievanceManagement = () => {
     departmentId: '',
     facultyId: ''
   });
+
+  // View Details Modal states
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewGrievance, setViewGrievance] = useState(null);
+
+  const openViewModal = (g) => {
+    setViewGrievance(g);
+    setShowViewModal(true);
+  };
 
   const categories = [
     'Attendance Issues',
@@ -173,7 +182,7 @@ const GrievanceManagement = () => {
 
       {/* Filter toolbar */}
       <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)', marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr 1fr', gap: '10px' }}>
+        <div className="filter-toolbar-grid-5">
           
           {/* Search bar */}
           <div style={{ position: 'relative' }}>
@@ -280,6 +289,15 @@ const GrievanceManagement = () => {
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                       
+                      {/* View Details btn */}
+                      <button 
+                        title="View Full Details & AI Summary"
+                        onClick={() => openViewModal(g)}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--accent-purple)', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <Eye size={16} />
+                      </button>
+
                       {/* Assign btn */}
                       <button 
                         title="Assign Department/Officer"
@@ -396,6 +414,156 @@ const GrievanceManagement = () => {
                 Save Allocations
               </button>
             </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* VIEW DETAILS & AI SUMMARY MODAL */}
+      {showViewModal && viewGrievance && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '30px', borderRadius: 'var(--radius-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--accent-purple)', fontWeight: 'bold' }}>{viewGrievance.ticketId}</span>
+                <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>{viewGrievance.subject}</h3>
+              </div>
+              <button 
+                onClick={() => setShowViewModal(false)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Category, Priority & Status row */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                <span className="badge-purple" style={{ padding: '4px 10px', borderRadius: '12px', background: 'rgba(99,102,241,0.1)', color: 'var(--accent-purple)' }}>
+                  Category: {viewGrievance.category}
+                </span>
+                <span style={{ padding: '4px 10px', borderRadius: '12px', background: 'rgba(244,63,94,0.1)', color: 'var(--accent-rose)' }}>
+                  Priority: {viewGrievance.priority}
+                </span>
+                <span className={`status-badge ${
+                  viewGrievance.status === 'Pending' ? 'status-pending' :
+                  viewGrievance.status === 'Under Review' ? 'status-review' :
+                  viewGrievance.status === 'In Progress' ? 'status-progress' :
+                  viewGrievance.status === 'Resolved' ? 'status-resolved' :
+                  viewGrievance.status === 'Closed' ? 'status-closed' : 'status-rejected'
+                }`} style={{ fontSize: '0.75rem', padding: '2px 8px' }}>
+                  {viewGrievance.status}
+                </span>
+              </div>
+
+              {/* Description */}
+              <div>
+                <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '6px' }}>Student Description</h4>
+                <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: 'var(--text-primary)', whiteSpace: 'pre-line', background: 'rgba(255,255,255,0.01)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                  {viewGrievance.description}
+                </p>
+              </div>
+
+              {/* AI Generated Summary */}
+              {viewGrievance.aiSummary && (
+                <div>
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-purple)', fontWeight: '600', marginBottom: '6px' }}>🤖 AI Generated Summary</h4>
+                  <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: 'var(--text-secondary)', fontStyle: 'italic', background: 'rgba(99, 102, 241, 0.03)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
+                    "{viewGrievance.aiSummary}"
+                  </p>
+                </div>
+              )}
+
+              {/* Student Metadata */}
+              <div style={{
+                padding: '12px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(255,255,255,0.01)',
+                border: '1px solid var(--border)',
+                fontSize: '0.85rem',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px'
+              }}>
+                <div>
+                  <span style={{ color: 'var(--text-secondary)' }}>Student Name: </span>
+                  <strong style={{ color: '#fff' }}>{viewGrievance.studentId?.name}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-secondary)' }}>Roll Number: </span>
+                  <strong style={{ color: '#fff' }}>{viewGrievance.studentId?.rollNumber}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-secondary)' }}>Email: </span>
+                  <strong style={{ color: '#fff' }}>{viewGrievance.studentId?.email}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-secondary)' }}>Department: </span>
+                  <strong style={{ color: '#fff' }}>{viewGrievance.department?.departmentName || 'General'}</strong>
+                </div>
+                {viewGrievance.assignedTo && (
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Assigned Faculty Officer: </span>
+                    <strong style={{ color: '#fff' }}>{viewGrievance.assignedTo.name} ({viewGrievance.assignedTo.email})</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* Attachments */}
+              {viewGrievance.attachments && viewGrievance.attachments.length > 0 && (
+                <div>
+                  <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold', marginBottom: '8px' }}>ATTACHED FILES</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {viewGrievance.attachments.map((fileUrl, index) => {
+                      const cleanUrl = fileUrl.startsWith('http') 
+                        ? fileUrl 
+                        : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${fileUrl}`;
+                      const rawName = fileUrl.startsWith('http') 
+                        ? fileUrl.substring(fileUrl.lastIndexOf('/') + 1)
+                        : fileUrl;
+                      const filename = rawName.split('-').slice(2).join('-') || 'Attachment';
+                      return (
+                        <a 
+                          key={index}
+                          href={cleanUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="btn-secondary" 
+                          style={{ padding: '6px 12px', fontSize: '0.75rem', gap: '6px', background: 'rgba(255,255,255,0.03)' }}
+                        >
+                          <FileText size={12} />
+                          {filename}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                onClick={() => setShowViewModal(false)}
+                style={{ padding: '8px 16px' }}
+              >
+                Close View
+              </button>
+            </div>
 
           </div>
         </div>

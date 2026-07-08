@@ -39,6 +39,31 @@ const ResponsePage = () => {
     }
   }, [ticketIdParam]);
 
+  // Polling for real-time comments and status updates in background
+  useEffect(() => {
+    if (!grievance) return;
+    if (grievance.status === 'Closed' || grievance.status === 'Rejected') return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const commentRes = await api.get(`/responses/${grievance._id}`);
+        if (JSON.stringify(commentRes.data) !== JSON.stringify(comments)) {
+          setComments(commentRes.data);
+        }
+
+        const res = await api.get(`/grievances/ticket/${grievance.ticketId}`);
+        if (res.data.status !== grievance.status) {
+          setGrievance(res.data);
+          setNewStatus(res.data.status);
+        }
+      } catch (err) {
+        console.error('Error polling updates for officer:', err.message);
+      }
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, [grievance, comments]);
+
   const fetchTicketDetails = async (tId) => {
     setError('');
     setLoading(true);
@@ -181,6 +206,21 @@ const ResponsePage = () => {
             <p style={{ marginTop: '20px', fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-primary)', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
               {grievance.description}
             </p>
+
+            {/* AI Summary Banner */}
+            {grievance.aiSummary && (
+              <div style={{
+                marginTop: '16px',
+                background: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.15)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '12px 16px',
+                fontSize: '0.85rem'
+              }}>
+                <strong style={{ color: 'var(--accent-purple)' }}>🤖 AI Generated Summary: </strong>
+                <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>"{grievance.aiSummary}"</span>
+              </div>
+            )}
 
             {/* Student metadata widget */}
             <div style={{

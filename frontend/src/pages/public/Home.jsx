@@ -10,11 +10,14 @@ import {
   GraduationCap,
   Sun,
   Moon,
-  Star
+  Star,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Home = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     totalRegistered: 0,
     totalResolved: 0,
@@ -107,23 +110,29 @@ const Home = () => {
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
       
       {/* Header Navbar */}
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '24px 0',
-        borderBottom: '1px solid var(--border)'
-      }}>
+      <header className="public-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <GraduationCap size={36} style={{ color: 'var(--primary)' }} />
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.5rem', fontWeight: 'bold' }}>CGS Portal</h2>
         </div>
-        <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-          <Link to="/" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Home</Link>
-          <Link to="/about" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>About</Link>
-          <Link to="/contact" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Contact</Link>
+        
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          className="public-menu-btn"
+          title="Toggle Navigation Menu"
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+
+        <nav className={`public-nav ${isMenuOpen ? 'open' : ''}`}>
+          <Link to="/" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Home</Link>
+          <Link to="/about" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>About</Link>
+          <Link to="/contact" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Contact</Link>
           <button 
-            onClick={toggleTheme} 
+            onClick={() => {
+              toggleTheme();
+              setIsMenuOpen(false);
+            }} 
             className="btn-secondary" 
             style={{ 
               padding: '8px 12px', 
@@ -136,8 +145,8 @@ const Home = () => {
           >
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
-          <Link to="/login" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Login</Link>
-          <Link to="/register" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Register</Link>
+          <Link to="/login" onClick={() => setIsMenuOpen(false)} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Login</Link>
+          <Link to="/register" onClick={() => setIsMenuOpen(false)} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Register</Link>
         </nav>
       </header>
 

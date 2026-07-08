@@ -38,6 +38,30 @@ const TrackGrievance = () => {
     }
   }, [ticketIdParam]);
 
+  // Polling for real-time comments and status updates in background
+  useEffect(() => {
+    if (!grievance) return;
+    if (grievance.status === 'Closed' || grievance.status === 'Rejected') return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const commentRes = await api.get(`/responses/${grievance._id}`);
+        if (JSON.stringify(commentRes.data) !== JSON.stringify(comments)) {
+          setComments(commentRes.data);
+        }
+
+        const res = await api.get(`/grievances/ticket/${grievance.ticketId}`);
+        if (res.data.status !== grievance.status || res.data.assignedTo?._id !== grievance.assignedTo?._id) {
+          setGrievance(res.data);
+        }
+      } catch (err) {
+        console.error('Error polling grievance updates:', err.message);
+      }
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, [grievance, comments]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim() === '') return;
