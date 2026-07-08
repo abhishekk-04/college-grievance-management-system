@@ -220,25 +220,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Demo Credentials Alert Helper */}
-        <div style={{
-          marginTop: '24px',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: '12px 16px',
-          fontSize: '0.75rem',
-          color: 'var(--text-secondary)'
-        }}>
-          <span style={{ fontWeight: 'bold', color: 'var(--primary)', display: 'block', marginBottom: '4px' }}>
-            💡 Demo Logins:
-          </span>
-          {roleTab === 'Student' ? (
-            <span>student@cgs.com / student123</span>
-          ) : (
-            <span>admin@cgs.com / admin123 (Admin)<br />faculty@cgs.com / faculty123 (Faculty)</span>
-          )}
-        </div>
 
         {/* Student Registration redirect link */}
         {roleTab === 'Student' && (
