@@ -291,10 +291,10 @@ The dashboard provides insights including:
 # 📸 Screenshots
 
 ### 💻 Public Landing Page (Hero Section)
-![Public Landing Page](screenshots/landing_page.png)
+![Public Landing Page](readme_assets/landing_page.png)
 
 ### 📂 Grievance Categories & System Flow
-![Grievance Categories & Flow](screenshots/grievance_categories.png)
+![Grievance Categories & Flow](readme_assets/grievance_categories.png)
 
 ---
 
