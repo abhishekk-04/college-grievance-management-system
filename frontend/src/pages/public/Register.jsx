@@ -18,30 +18,29 @@ const Register = () => {
     confirmPassword: ''
   });
 
-  const [departments, setDepartments] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch departments list for dropdown
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await api.get('/departments');
-        setDepartments(res.data);
-      } catch (err) {
-        console.warn('Could not fetch departments, using static fallback:', err.message);
-        setDepartments([
-          { _id: '1', departmentName: 'Computer Science & Engineering' },
-          { _id: '2', departmentName: 'Electrical Engineering' },
-          { _id: '3', departmentName: 'Mechanical Engineering' },
-          { _id: '4', departmentName: 'Civil Engineering' },
-          { _id: '5', departmentName: 'Business Administration' }
-        ]);
-      }
-    };
-
-    fetchDepartments();
-  }, []);
+  const academicDepartments = [
+    'Biotechnology (BT)',
+    'Civil Engineering (CE)',
+    'Computer Science & Engineering (CSE)',
+    'Computer Science & Engineering - IoT (CIOT)',
+    'Computer Science & Engineering - AI (CSAI)',
+    'Computer Science & Engineering - Data Science (CSDS)',
+    'Computer Science & Engineering - Data Analytics (CSDA)',
+    'Electronics & Communication Engineering (ECE)',
+    'Electronics & Communication Engineering - IoT (ECIOT)',
+    'Electronics & Communication Engineering - AI & ML (ECAM)',
+    'Electrical Engineering (EE)',
+    'Geoinformatics (GI)',
+    'Information Technology (IT)',
+    'Information Technology - Network Security (ITNS)',
+    'Instrumentation & Control Engineering (ICE)',
+    'Mathematics & Computing (MAC)',
+    'Mechanical Engineering (ME)',
+    'Mechanical Engineering - Electric Vehicles (MEEV)'
+  ];
 
   // Redirect if logged in
   useEffect(() => {
@@ -200,9 +199,9 @@ const Register = () => {
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
               >
                 <option value="">Select Department</option>
-                {departments.map((dept) => (
-                  <option key={dept._id} value={dept.departmentName}>
-                    {dept.departmentName}
+                {academicDepartments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
                   </option>
                 ))}
               </select>
